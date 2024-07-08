@@ -47,7 +47,6 @@ def main():
 
     _ = navigator.getPath(initial_pose, goal_poses[0])
 
-    nav_start = navigator.get_clock().now()
     navigator.followWaypoints(goal_poses)
 
     i = 0
@@ -58,40 +57,23 @@ def main():
             navigator.info(
                 f"Executing current waypoint: {feedback.current_waypoint}/{len(goal_poses)}"
             )
-            now = navigator.get_clock().now()
 
-            # Some navigation timeout to demo cancellation
-            if now - nav_start > Duration(seconds=600.0):
-                navigator.cancelTask()
+            # if navigator.get_clock().now() - nav_start > Duration(seconds=600.0):
+            #     navigator.cancelTask()
 
-            # Some follow waypoints request change to demo preemption
-            if now - nav_start > Duration(seconds=35.0):
-                goal_pose4 = PoseStamped()
-                goal_pose4.header.frame_id = "map"
-                goal_pose4.header.stamp = now.to_msg()
-                goal_pose4.pose.position.x = 0.0
-                goal_pose4.pose.position.y = 0.0
-                goal_pose4.pose.orientation.w = 1.0
-                goal_pose4.pose.orientation.z = 0.0
-                goal_poses = [goal_pose4]
-                nav_start = now
-                navigator.followWaypoints(goal_poses)
     navigator.get_logger().info("Waypoint mission FINISHED!")
-
-    # Do something depending on the return code
-    result = navigator.getResult()
-    if result == TaskResult.SUCCEEDED:
-        print("Goal succeeded!")
-    elif result == TaskResult.CANCELED:
-        print("Goal was canceled!")
-    elif result == TaskResult.FAILED:
-        print("Goal failed!")
-    else:
-        print("Goal has an invalid return status!")
-
     navigator.lifecycleShutdown()
-
     exit(0)
+
+    # result = navigator.getResult()
+    # if result == TaskResult.SUCCEEDED:
+    #     print("Goal succeeded!")
+    # elif result == TaskResult.CANCELED:
+    #     print("Goal was canceled!")
+    # elif result == TaskResult.FAILED:
+    #     print("Goal failed!")
+    # else:
+    #     print("Goal has an invalid return status!")
 
 
 if __name__ == "__main__":
