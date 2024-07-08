@@ -33,16 +33,7 @@ def main():
     # global_costmap = navigator.getGlobalCostmap()
     # local_costmap = navigator.getLocalCostmap()
 
-    values = [
-        (1.0, 1.0, 0.0, 1.0),
-        (2.0, 2.0, 0.0, 1.0),
-        (
-            3.0,
-            3.0,
-            0.0,
-            1.0,
-        ),
-    ]
+    values = [(1.0, 1.0, 0.0, 1.0), (2.0, 2.0, 0.0, 1.0), ( 3.0, 3.0, 0.0, 1.0,)]  # fmt: skip
     goal_poses = [
         PoseStamped(
             header=Header(frame_id="map"),
