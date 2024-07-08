@@ -12,8 +12,13 @@ def generate_launch_description():
             ),
             Node(
                 package="commander",
-                executable="follow_waypoints",
-                name="follow_waypoints",
+                executable="follow_waypoints_server",
+                name="follow_waypoints_server",
+            ),
+            Node(
+                package="commander",
+                executable="compute_path_to_pose_server",
+                name="compute_path_to_pose_server",
             ),
         ]
     )

@@ -7,7 +7,6 @@ from std_msgs.msg import Header
 from geometry_msgs.msg import Pose, Quaternion, Point
 
 
-
 def main():
     rclpy.init()
     navigator = BasicNavigator()
@@ -15,8 +14,8 @@ def main():
     initial_pose = PoseStamped()
     initial_pose.header.frame_id = "map"
     initial_pose.header.stamp = navigator.get_clock().now().to_msg()
-    initial_pose.pose.position.x, initial_pose.pose.position.y = 0., 0.
-    initial_pose.pose.orientation.z, initial_pose.pose.orientation.w = 0., 1.
+    initial_pose.pose.position.x, initial_pose.pose.position.y = 0.0, 0.0
+    initial_pose.pose.orientation.z, initial_pose.pose.orientation.w = 0.0, 1.0
     navigator.setInitialPose(initial_pose)
 
     # Activate navigation, if not autostarted. This should be called after setInitialPose()
@@ -34,13 +33,28 @@ def main():
     # global_costmap = navigator.getGlobalCostmap()
     # local_costmap = navigator.getLocalCostmap()
 
+    values = [
+        (1.0, 1.0, 0.0, 1.0),
+        (2.0, 2.0, 0.0, 1.0),
+        (
+            3.0,
+            3.0,
+            0.0,
+            1.0,
+        ),
+    ]
+    goal_poses = [
+        PoseStamped(
+            header=Header(frame_id="map"),
+            pose=Pose(
+                position=Point(x=x, y=y, z=0.0),
+                orientation=Quaternion(x=0.0, y=0.0, z=z, w=w),
+            ),
+        )
+        for x, y, z, w in values
+    ]
 
-    values = [(1., 1., 0., 1.), (2., 2., 0., 1.), (3., 3., 0., 1.,)]
-    goal_poses = [PoseStamped(header=Header(frame_id='map'), pose=Pose(position=Point(x=x, y=y, z=0.), orientation=Quaternion(x=0.0, y=0.0, z=z, w=w)))
-    for x, y, z, w in values]
-
-    # sanity check a valid path exists
-    # path = navigator.getPath(initial_pose, goal_pose1)
+    _ = navigator.getPath(initial_pose, goal_poses[0])
 
     nav_start = navigator.get_clock().now()
     navigator.followWaypoints(goal_poses)
