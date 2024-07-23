@@ -33,7 +33,7 @@ def main():
     # global_costmap = navigator.getGlobalCostmap()
     # local_costmap = navigator.getLocalCostmap()
 
-    values = [(1.0, 1.0, 0.0, 1.0), (2.0, 2.0, 0.0, 1.0), ( 3.0, 3.0, 0.0, 1.0,)]  # fmt: skip
+    values = [(-20.0, -70.0, 0.0, 1.0), (-10.0, 70.0, 0.0, 1.0), (-70.0, 70.0, 0.0, 1.0), (-70.0, -70.0, 0.0, 1.0) ]  # fmt: skip
     goal_poses = [
         PoseStamped(
             header=Header(frame_id="map"),
@@ -53,13 +53,13 @@ def main():
     while not navigator.isTaskComplete():
         i = i + 1
         feedback = navigator.getFeedback()
-        if feedback and i % 5 == 0:
-            navigator.info(
-                f"Executing current waypoint: {feedback.current_waypoint}/{len(goal_poses)}"
-            )
+        # if feedback and i % 5 == 0:
+        #     navigator.info(
+        #         f"Executing current waypoint: {feedback.current_waypoint}/{len(goal_poses)}"
+        #     )
 
-            # if navigator.get_clock().now() - nav_start > Duration(seconds=600.0):
-            #     navigator.cancelTask()
+        # if navigator.get_clock().now() - nav_start > Duration(seconds=600.0):
+        #     navigator.cancelTask()
 
     navigator.get_logger().info("Waypoint mission FINISHED!")
     navigator.lifecycleShutdown()
