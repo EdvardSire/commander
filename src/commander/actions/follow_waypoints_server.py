@@ -78,7 +78,6 @@ class FollowWaypointsServer(Node):
 
                 feedback.current_waypoint = index
                 goal_handle.publish_feedback(feedback)
-                sleep(0.1)
 
         threading.Thread(target=control_vessel).start()
 

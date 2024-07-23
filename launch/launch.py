@@ -5,6 +5,11 @@ from launch_ros.actions import Node
 def generate_launch_description():
     return LaunchDescription(
         [
+            # Node(
+            #     package="commander",
+            #     executable="mock_boat",
+            #     name="mock_boat",
+            # ),
             Node(
                 package="commander",
                 executable="exec",
