@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import math
 import threading
 from time import sleep
@@ -77,6 +78,7 @@ class FollowWaypointsServer(Node):
 
                 feedback.current_waypoint = index
                 goal_handle.publish_feedback(feedback)
+                sleep(0.1)
 
         threading.Thread(target=control_vessel).start()
 

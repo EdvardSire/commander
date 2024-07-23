@@ -1,8 +1,7 @@
 #! /usr/bin/env python3
 from geometry_msgs.msg import PoseStamped
-from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
+from nav2_simple_commander.robot_navigator import BasicNavigator
 import rclpy
-from rclpy.duration import Duration
 from std_msgs.msg import Header
 from geometry_msgs.msg import Pose, Quaternion, Point
 import numpy as np
@@ -10,6 +9,7 @@ import numpy as np
 
 def get_square_values():
     return [(-20.0, -70.0, 0.0, 1.0), (-10.0, 70.0, 0.0, 1.0), (-70.0, 70.0, 0.0, 1.0), (-70.0, -70.0, 0.0, 1.0) ]  # fmt: skip
+
 def get_figure_8():
     num_points = 30
     scale_factor = 50
@@ -21,14 +21,18 @@ def get_figure_8():
     x *= scale_factor
     y *= scale_factor
 
-    global_offset = 300 
-    return [(x-global_offset, y+global_offset, 0.0, 1.0) for x, y in zip(x,y)]
-
     if plot := False:
+        import matplotlib.pyplot as plt
         plt.plot(x, y)
         plt.scatter(x,y, color="r")
         plt.grid(True)
         plt.show()
+
+    global_offset = 300 
+    return [(x-global_offset, y+global_offset, 0.0, 1.0) for x, y in zip(x,y)]
+
+def get_collision_path():
+    return [(250.0, 730.0, 0.0, 1.0)]
 
 def main():
     rclpy.init()
@@ -65,7 +69,7 @@ def main():
                 orientation=Quaternion(x=0.0, y=0.0, z=z, w=w),
             ),
         )
-        for x, y, z, w in get_figure_8()*3
+        for x, y, z, w in get_collision_path()
     ]
 
     _ = navigator.getPath(initial_pose, goal_poses[0])
