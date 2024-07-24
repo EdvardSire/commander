@@ -25,6 +25,7 @@ class FollowWaypointsServer(Node):
         self.boat_length = 3
         self.waypoint_tolerance = 2 * self.boat_length
         self.position = Twist()
+        self.other_boat_pose = Pose(position=Point(x=50.0, y=0.0, z=0.0), orientation=Quaternion(x=0.0, y=0.0, z=0.0, w=1.0))
 
         self._action_server = ActionServer(
             self, FollowWaypoints, "follow_waypoints", self.execute_callback
@@ -93,8 +94,19 @@ class FollowWaypointsServer(Node):
         markers.markers.append(
             Marker(
                 header=Header(stamp=self.get_clock().now().to_msg(), frame_id='map'),
+                id=0,
                 type=Marker.CUBE,
                 pose=Pose(position=Point(x=msg.linear.x, y=msg.linear.y, z=0.0), orientation=Quaternion(x=0.0, y=0.0, z=msg.angular.z, w=1.0)),
+                scale=Vector3(x=3.0, y=1.0, z=1.0),
+                color=ColorRGBA(r=0.0, g=1.0, b=0.0, a=1.0)
+            )
+        )
+        markers.markers.append(
+            Marker(
+                header=Header(stamp=self.get_clock().now().to_msg(), frame_id='map'),
+                id=1,
+                type=Marker.CUBE,
+                pose=Pose(position=Point(x=self.other_boat_pose.position.x, y=self.other_boat_pose.position.y, z=0.0), orientation=Quaternion(x=0.0, y=0.0, z=0.0, w=1.0)),
                 scale=Vector3(x=3.0, y=1.0, z=1.0),
                 color=ColorRGBA(r=1.0, g=0.0, b=0.0, a=1.0)
             )
