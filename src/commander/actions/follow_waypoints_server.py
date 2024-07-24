@@ -18,6 +18,14 @@ from rclpy.node import Node
 from std_msgs.msg import ColorRGBA, Header
 from visualization_msgs.msg import Marker, MarkerArray
 
+from actions.config import (
+    OWN_CURRENT_WAYPOINT_TOPIC,
+    OWN_NEXT_WAYPOINT_TOPIC,
+    OWN_PATH_TOPIC,
+    OWN_POSITION_TOPIC,
+    OWN_VIZ_TOPIC,
+)
+
 
 class FollowWaypointsServer(Node):
     def __init__(self):
@@ -34,16 +42,14 @@ class FollowWaypointsServer(Node):
             self, FollowWaypoints, "follow_waypoints", self.execute_callback
         )
         self.position_subscriber = self.create_subscription(
-            Twist, "/revolt/sim/stc/position/hull", self.position_callback, 10
+            Twist, OWN_POSITION_TOPIC, self.position_callback, 10
         )
         self.los_current_pub = self.create_publisher(
-            Point, "/revolt/control/los_current_waypoint", 10
+            Point, OWN_CURRENT_WAYPOINT_TOPIC, 10
         )
-        self.los_next_pub = self.create_publisher(
-            Point, "/revolt/control/los_next_waypoint", 10
-        )
-        self.path_pub = self.create_publisher(Path, "/revolt/path", 10)
-        self.marker_pub = self.create_publisher(MarkerArray, "/viz/boats", 10)
+        self.los_next_pub = self.create_publisher(Point, OWN_NEXT_WAYPOINT_TOPIC, 10)
+        self.path_pub = self.create_publisher(Path, OWN_PATH_TOPIC, 10)
+        self.marker_pub = self.create_publisher(MarkerArray, OWN_VIZ_TOPIC, 10)
 
     def execute_callback(self, goal_handle):
         self.get_logger().info("STARTING Waypoint mission")
@@ -109,7 +115,7 @@ class FollowWaypointsServer(Node):
     def position_callback(self, msg):
         self.position = msg
         markers = MarkerArray()
-        markers.markers.append( # pyright: ignore
+        markers.markers.append(  # pyright: ignore
             Marker(
                 header=Header(stamp=self.get_clock().now().to_msg(), frame_id="map"),
                 id=0,
@@ -122,7 +128,7 @@ class FollowWaypointsServer(Node):
                 color=ColorRGBA(r=0.0, g=1.0, b=0.0, a=1.0),
             )
         )
-        markers.markers.append( # pyright: ignore 
+        markers.markers.append(  # pyright: ignore
             Marker(
                 header=Header(stamp=self.get_clock().now().to_msg(), frame_id="map"),
                 id=1,

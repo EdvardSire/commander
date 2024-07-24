@@ -41,7 +41,7 @@ def get_figure_8():
 
 
 def get_collision_path():
-    return [(50.0, 50.0, 0.0, 1.0)]
+    return [(10.0, 10.0, 0.0, 1.0)]
 
 
 def main():

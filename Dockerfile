@@ -5,10 +5,9 @@ RUN apt update && apt install -y python3-pip \
   python3-colcon-common-extensions \
   git \
   libx11-6 \
-  ros-jazzy-rqt-image-view \
-  ros-jazzy-rqt-plot \
-  ros-jazzy-rqt-common-plugins \
-  ros-jazzy-rqt-tf-tree
+  ros-jazzy-rviz2
+
+RUN pip3 install shapely matplotlib scipy --break-system-packages
 
 COPY scripts/* /
 
