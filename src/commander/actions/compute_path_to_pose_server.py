@@ -1,18 +1,15 @@
-from numpy import append
 import rclpy
-from rclpy.action.server import ActionServer
-from rclpy.node import Node
-
 from builtin_interfaces.msg import Duration
-from nav_msgs.msg import Path
-from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
+from geometry_msgs.msg import Point, Pose, PoseStamped, Quaternion
 from nav2_msgs.action import ComputePathToPose
 from nav2_msgs.action._compute_path_to_pose import (
+    ComputePathToPose_Goal,
     ComputePathToPose_Result,
-    ComputePathToPose_Goal
 )
+from nav_msgs.msg import Path
+from rclpy.action.server import ActionServer
+from rclpy.node import Node
 from std_msgs.msg import Header
-
 
 from actions.informed_rrt_star import InformedRRTStar
 
@@ -24,6 +21,7 @@ class ComputePathToPoseServer(Node):
         self.goal_sample_rate = 10
         self.max_iter = 100
         self.border_offset = 20
+
         self.action_server = ActionServer(
             self, ComputePathToPose, "compute_path_to_pose", self.execute_callback
         )
@@ -33,28 +31,32 @@ class ComputePathToPoseServer(Node):
         start_pose = (request.start.pose.position.x, request.start.pose.position.y)
         goal_pose = (request.goal.pose.position.x, request.goal.pose.position.y)
         """"
-                                                         top_right
+                                                          (max_x, max_y)
        |----------------------------------------------|------*
        |                                              |      |
        |    start pose                            goal|pose  |
        |    --*->                                     *------| border_offset
        |                                                     |
        *-----------------------------------------------------|
-       bottom_left
+       (min_x, min_y)
         """
-        bottom_left = (start_pose[0]-self.border_offset, start_pose[1]-self.border_offset)
-        top_right = (goal_pose[0]+self.border_offset, goal_pose[1]+self.border_offset)
-        # TODO HANDLE ALL CASES OF PADDING
+        min_x = min(start_pose[0], goal_pose[0]) - self.border_offset
+        max_x = max(start_pose[0], goal_pose[0]) + self.border_offset
+        min_y = min(start_pose[1], goal_pose[1]) - self.border_offset
+        max_y = max(start_pose[1], goal_pose[1]) + self.border_offset
+
         self.informed_rrt_star = InformedRRTStar(
             start=[request.start.pose.position.x, request.start.pose.position.y],
             goal=[request.goal.pose.position.x, request.goal.pose.position.y],
-            obstacle_list=[],
-            rand_area=[bottom_left[0], bottom_left[1], top_right[0], top_right[1]],
+            obstacle_list=[],  # TODO
+            rand_area=[min_x, min_y, max_x, max_y],
             expand_dis=self.expand_dis,
             goal_sample_rate=self.goal_sample_rate,
-            max_iter=self.max_iter
+            max_iter=self.max_iter,
         )
-        rrt_path, time_elapsed = self.informed_rrt_star.informed_rrt_star_search(animation=False)
+        rrt_path, time_elapsed = self.informed_rrt_star.informed_rrt_star_search(
+            animation=False
+        )
         if rrt_path is None:
             self.get_logger().fatal("Can't compute path")
             goal_handle.abort()
@@ -66,20 +68,19 @@ class ComputePathToPoseServer(Node):
 
             rrt_path.reverse()
             for x, y in rrt_path:
-                path.poses.append(
+                path.poses.append(  # pyright: ignore
                     PoseStamped(
                         header=Header(),
                         pose=Pose(
                             position=Point(x=x, y=y, z=0.0),
-                            orientation=Quaternion(x=0.0, y=0.0, z=0.0, w=1.0)
-                        )
+                            orientation=Quaternion(x=0.0, y=0.0, z=0.0, w=1.0),
+                        ),
                     )
                 )
 
             return ComputePathToPose_Result(
-                        path=path,
-                        planning_time=Duration(sec=int(time_elapsed))
-                    )
+                path=path, planning_time=Duration(sec=int(time_elapsed))
+            )
 
 
 def main(args=None):

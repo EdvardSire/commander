@@ -357,6 +357,7 @@ class InformedRRTStar:
 def rot_mat_2d(angle):
     return Rot.from_euler("z", angle).as_matrix()[0:2, 0:2]
 
+
 def create_rhombus(cx, cy, size):
     return Polygon([(cx, cy - size/2), (cx + size/2, cy), (cx, cy + size/2), (cx - size/2, cy)])  # fmt: off
 
@@ -368,8 +369,10 @@ def create_square(sx, sy, size):
 def create_circle(cx, cy, radius):
     return Point(cx, cy).buffer(radius)
 
+
 def main():
     return rrt.informed_rrt_star_search(animation=not profiling)
+
 
 if __name__ == "__main__":
     import cProfile

@@ -4,22 +4,24 @@ from nav2_simple_commander.robot_navigator import BasicNavigator
 import rclpy
 from std_msgs.msg import Header
 from geometry_msgs.msg import Pose, Quaternion, Point
-from nav_msgs.msg import Path 
+from nav_msgs.msg import Path
 
 import numpy as np
 
 
 def get_simple_values():
-    return [(1.0,1.0,0.0,1.0), (2.0,2.0,0.0,1.0), (3.0,2.0,0.0,1.0)]
+    return [(1.0, 1.0, 0.0, 1.0), (2.0, 2.0, 0.0, 1.0), (3.0, 2.0, 0.0, 1.0)]
+
 
 def get_square_values():
     return [(-20.0, -70.0, 0.0, 1.0), (-10.0, 70.0, 0.0, 1.0), (-70.0, 70.0, 0.0, 1.0), (-70.0, -70.0, 0.0, 1.0) ]  # fmt: skip
+
 
 def get_figure_8():
     num_points = 30
     scale_factor = 50
 
-    t = np.linspace(0, 2*np.pi, num_points)
+    t = np.linspace(0, 2 * np.pi, num_points)
 
     x = np.sin(t)
     y = np.sin(t) * np.cos(t)
@@ -28,16 +30,19 @@ def get_figure_8():
 
     if plot := False:
         import matplotlib.pyplot as plt
+
         plt.plot(x, y)
-        plt.scatter(x,y, color="r")
+        plt.scatter(x, y, color="r")
         plt.grid(True)
         plt.show()
 
-    global_offset = 0 
-    return [(x-global_offset, y+global_offset, 0.0, 1.0) for x, y in zip(x,y)]
+    global_offset = 0
+    return [(x - global_offset, y + global_offset, 0.0, 1.0) for x, y in zip(x, y)]
+
 
 def get_collision_path():
     return [(50.0, 50.0, 0.0, 1.0)]
+
 
 def main():
     rclpy.init()
@@ -64,7 +69,6 @@ def main():
     # navigator.clearAllCostmaps()  # also have clearLocalCostmap() and clearGlobalCostmap()
     # global_costmap = navigator.getGlobalCostmap()
     # local_costmap = navigator.getLocalCostmap()
-
 
     goal_poses = [
         PoseStamped(
