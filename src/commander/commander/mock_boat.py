@@ -1,9 +1,15 @@
 import rclpy
 from rclpy.node import Node
-from geometry_msgs.msg import Twist, Point
+from geometry_msgs.msg import Twist, Point, Pose, PoseStamped
 import math
 
-from actions.config import OWN_NEXT_WAYPOINT_TOPIC, OWN_POSITION_TOPIC
+from std_msgs.msg import Header
+
+from actions.config import (
+    OTHER_POSITION_TOPIC,
+    OWN_NEXT_WAYPOINT_TOPIC,
+    OWN_POSITION_TOPIC,
+)
 
 
 class MockBoat(Node):
@@ -17,6 +23,9 @@ class MockBoat(Node):
         self.speed_multiply = 5.0
 
         self.position_publisher = self.create_publisher(Twist, OWN_POSITION_TOPIC, 10)
+        self.other_position_publisher = self.create_publisher(
+            PoseStamped, OTHER_POSITION_TOPIC, 10
+        )
         self.waypoint_subscriber = self.create_subscription(
             Point, OWN_NEXT_WAYPOINT_TOPIC, self.waypoint_callback, 10
         )
@@ -27,6 +36,7 @@ class MockBoat(Node):
         self.current_waypoint = msg
 
     def update_position(self):
+        self.update_other_position()
         dt = 0.1  # Time step
 
         self.position.linear.x += self.velocity.linear.x * dt
@@ -55,11 +65,19 @@ class MockBoat(Node):
             self.velocity.linear.x = self.speed_multiply * math.cos(angle_to_waypoint)
             self.velocity.linear.y = self.speed_multiply * math.sin(angle_to_waypoint)
 
+    def update_other_position(self):
+        self.other_position_publisher.publish(
+            PoseStamped(
+                header=Header(frame_id="map"), pose=Pose(position=Point(x=50.0))
+            )
+        )
+
 
 def main(args=None):
     rclpy.init(args=args)
     mock_boat = MockBoat()
     rclpy.spin(mock_boat)
+    # rclpy.spin(mock_boat, executor=MultiThreadedExecutor())
     mock_boat.destroy_node()
     rclpy.shutdown()
 

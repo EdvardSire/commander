@@ -3,3 +3,5 @@ OWN_CURRENT_WAYPOINT_TOPIC = "/revolt/control/los_current_waypoint"
 OWN_NEXT_WAYPOINT_TOPIC = "/revolt/control/los_next_waypoint"
 OWN_PATH_TOPIC = "/revolt/path"
 OWN_VIZ_TOPIC = "/viz/boats"
+
+OTHER_POSITION_TOPIC = "/boat1/sim/stc/position/hull"
