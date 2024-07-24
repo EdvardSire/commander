@@ -4,6 +4,8 @@ from nav2_simple_commander.robot_navigator import BasicNavigator
 import rclpy
 from std_msgs.msg import Header
 from geometry_msgs.msg import Pose, Quaternion, Point
+from nav_msgs.msg import Path 
+
 import numpy as np
 
 
@@ -35,7 +37,7 @@ def get_figure_8():
     return [(x-global_offset, y+global_offset, 0.0, 1.0) for x, y in zip(x,y)]
 
 def get_collision_path():
-    return [(250.0, 730.0, 0.0, 1.0)]
+    return [(50.0, 50.0, 0.0, 1.0)]
 
 def main():
     rclpy.init()
@@ -72,12 +74,12 @@ def main():
                 orientation=Quaternion(x=0.0, y=0.0, z=z, w=w),
             ),
         )
-        for x, y, z, w in get_figure_8()
+        for x, y, z, w in get_collision_path()
     ]
 
-    _ = navigator.getPath(initial_pose, goal_poses[0])
+    path: Path | None = navigator.getPath(initial_pose, goal_poses[-1])
 
-    navigator.followWaypoints(goal_poses)
+    navigator.followWaypoints(path.poses)
 
     i = 0
     while not navigator.isTaskComplete():
