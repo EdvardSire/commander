@@ -380,7 +380,6 @@ if __name__ == "__main__":
     import pstats
     from pstats import SortKey
 
-
     circles = [ create_circle(x, y, r) for x, y, r in [ (5, 5, 0.5), (9, 6, 1), (7, 5, 1), (1, 5, 1), (3, 6, 1), (7, 9, 1), ] ]  # fmt: off
     squares = [ create_square(x, y, r * 3) for x, y, r in [ (5, 5, 0.5), (9, 6, 1), (7, 5, 1), (1, 5, 1), (3, 6, 1), (7, 9, 1), ] ]  # fmt: off
     rhombas = [ create_rhombus(x, y, r) for x, y, r in [ (5, 5, 0.5), (9, 6, 1), (7, 5, 1), (1, 5, 1), (3, 6, 1), (7, 9, 1), ] ]  # fmt: off
@@ -407,7 +406,7 @@ if __name__ == "__main__":
         print(s.getvalue())
     else:
         path, time_in_s = main()
-        if path == None:
+        if path is None:
             print("Max iter too low")
         else:
             rrt.draw_graph()

@@ -1,12 +1,12 @@
 import rclpy
 from rclpy.node import Node
-from geometry_msgs.msg import Twist, Point, Pose, PoseStamped
+from geometry_msgs.msg import Twist, Point, Pose, PoseArray
 import math
 
 from std_msgs.msg import Header
 
 from actions.config import (
-    OTHER_POSITION_TOPIC,
+    OTHER_POSITIONS_TOPIC,
     OWN_NEXT_WAYPOINT_TOPIC,
     OWN_POSITION_TOPIC,
 )
@@ -24,7 +24,7 @@ class MockBoat(Node):
 
         self.position_publisher = self.create_publisher(Twist, OWN_POSITION_TOPIC, 10)
         self.other_position_publisher = self.create_publisher(
-            PoseStamped, OTHER_POSITION_TOPIC, 10
+            PoseArray, OTHER_POSITIONS_TOPIC, 10
         )
         self.waypoint_subscriber = self.create_subscription(
             Point, OWN_NEXT_WAYPOINT_TOPIC, self.waypoint_callback, 10
@@ -67,8 +67,12 @@ class MockBoat(Node):
 
     def update_other_position(self):
         self.other_position_publisher.publish(
-            PoseStamped(
-                header=Header(frame_id="map"), pose=Pose(position=Point(x=50.0))
+            PoseArray(
+                header=Header(stamp=self.get_clock().now().to_msg(), frame_id="map"),
+                poses=[
+                    Pose(position=Point(x=50.0)),
+                    # Pose(position=Point(x=50.0, y=5.0))
+                ],
             )
         )
 

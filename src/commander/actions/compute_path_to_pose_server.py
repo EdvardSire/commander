@@ -1,6 +1,6 @@
 import rclpy
 from builtin_interfaces.msg import Duration
-from geometry_msgs.msg import Point, Pose, PoseStamped, Quaternion
+from geometry_msgs.msg import Point, Pose, PoseArray, PoseStamped, Quaternion
 from nav2_msgs.action import ComputePathToPose
 from nav2_msgs.action._compute_path_to_pose import (
     ComputePathToPose_Goal,
@@ -11,7 +11,7 @@ from rclpy.action.server import ActionServer
 from rclpy.node import Node
 from std_msgs.msg import Header
 
-from actions.config import OTHER_POSITION_TOPIC
+from actions.config import OTHER_POSITIONS_TOPIC
 
 from actions.informed_rrt_star import InformedRRTStar, create_square
 
@@ -23,13 +23,13 @@ class ComputePathToPoseServer(Node):
         self.goal_sample_rate = 10
         self.max_iter = 400
         self.border_offset = 20
-        self.other_position = PoseStamped()
+        self.other_positions = PoseArray()
 
         self.action_server = ActionServer(
             self, ComputePathToPose, "compute_path_to_pose", self.execute_callback
         )
         self.other_position_sub = self.create_subscription(
-            PoseStamped, OTHER_POSITION_TOPIC, self.other_position_callback, 10
+            PoseArray, OTHER_POSITIONS_TOPIC, self.other_position_callback, 10
         )
 
     def execute_callback(self, goal_handle):
@@ -51,19 +51,20 @@ class ComputePathToPoseServer(Node):
         min_y = min(start_pose[1], goal_pose[1]) - self.border_offset
         max_y = max(start_pose[1], goal_pose[1]) + self.border_offset
 
-        assert (self.other_position.pose.position.x != 0) or (
-            self.other_position.pose.position.y
-        )
+        for pose in self.other_positions.poses:
+            assert (pose.position.x != 0) or (pose.position.y != 0)
+
         self.informed_rrt_star = InformedRRTStar(
             start=[request.start.pose.position.x, request.start.pose.position.y],
             goal=[request.goal.pose.position.x, request.goal.pose.position.y],
             obstacle_list=[
                 create_square(
-                    self.other_position.pose.position.x,
-                    self.other_position.pose.position.y,
+                    pose.position.x,
+                    pose.position.y,
                     10,
                 )
-            ],  # TODO
+                for pose in self.other_positions.poses
+            ],
             rand_area=[min_x, min_y, max_x, max_y],
             expand_dis=self.expand_dis,
             goal_sample_rate=self.goal_sample_rate,
@@ -98,7 +99,7 @@ class ComputePathToPoseServer(Node):
             )
 
     def other_position_callback(self, msg):
-        self.other_position = msg
+        self.other_positions = msg
 
 
 def main(args=None):
