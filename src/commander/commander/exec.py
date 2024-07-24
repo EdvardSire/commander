@@ -7,6 +7,9 @@ from geometry_msgs.msg import Pose, Quaternion, Point
 import numpy as np
 
 
+def get_simple_values():
+    return [(1.0,1.0,0.0,1.0), (2.0,2.0,0.0,1.0), (3.0,2.0,0.0,1.0)]
+
 def get_square_values():
     return [(-20.0, -70.0, 0.0, 1.0), (-10.0, 70.0, 0.0, 1.0), (-70.0, 70.0, 0.0, 1.0), (-70.0, -70.0, 0.0, 1.0) ]  # fmt: skip
 
@@ -28,7 +31,7 @@ def get_figure_8():
         plt.grid(True)
         plt.show()
 
-    global_offset = 300 
+    global_offset = 0 
     return [(x-global_offset, y+global_offset, 0.0, 1.0) for x, y in zip(x,y)]
 
 def get_collision_path():
@@ -63,13 +66,13 @@ def main():
 
     goal_poses = [
         PoseStamped(
-            header=Header(frame_id="map"),
+            header=Header(stamp=navigator.get_clock().now().to_msg(), frame_id="map"),
             pose=Pose(
                 position=Point(x=x, y=y, z=0.0),
                 orientation=Quaternion(x=0.0, y=0.0, z=z, w=w),
             ),
         )
-        for x, y, z, w in get_collision_path()
+        for x, y, z, w in get_figure_8()
     ]
 
     _ = navigator.getPath(initial_pose, goal_poses[0])
