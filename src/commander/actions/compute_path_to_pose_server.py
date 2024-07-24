@@ -11,7 +11,9 @@ from rclpy.action.server import ActionServer
 from rclpy.node import Node
 from std_msgs.msg import Header
 
-from actions.informed_rrt_star import InformedRRTStar
+from actions.config import OTHER_POSITION_TOPIC
+
+from actions.informed_rrt_star import InformedRRTStar, create_square
 
 
 class ComputePathToPoseServer(Node):
@@ -19,11 +21,15 @@ class ComputePathToPoseServer(Node):
         super().__init__("compute_path_to_pose_server")
         self.expand_dis = 3
         self.goal_sample_rate = 10
-        self.max_iter = 100
+        self.max_iter = 400
         self.border_offset = 20
+        self.other_position = PoseStamped()
 
         self.action_server = ActionServer(
             self, ComputePathToPose, "compute_path_to_pose", self.execute_callback
+        )
+        self.other_position_sub = self.create_subscription(
+            PoseStamped, OTHER_POSITION_TOPIC, self.other_position_callback, 10
         )
 
     def execute_callback(self, goal_handle):
@@ -45,10 +51,19 @@ class ComputePathToPoseServer(Node):
         min_y = min(start_pose[1], goal_pose[1]) - self.border_offset
         max_y = max(start_pose[1], goal_pose[1]) + self.border_offset
 
+        assert (self.other_position.pose.position.x != 0) or (
+            self.other_position.pose.position.y
+        )
         self.informed_rrt_star = InformedRRTStar(
             start=[request.start.pose.position.x, request.start.pose.position.y],
             goal=[request.goal.pose.position.x, request.goal.pose.position.y],
-            obstacle_list=[],  # TODO
+            obstacle_list=[
+                create_square(
+                    self.other_position.pose.position.x,
+                    self.other_position.pose.position.y,
+                    10,
+                )
+            ],  # TODO
             rand_area=[min_x, min_y, max_x, max_y],
             expand_dis=self.expand_dis,
             goal_sample_rate=self.goal_sample_rate,
@@ -81,6 +96,9 @@ class ComputePathToPoseServer(Node):
             return ComputePathToPose_Result(
                 path=path, planning_time=Duration(sec=int(time_elapsed))
             )
+
+    def other_position_callback(self, msg):
+        self.other_position = msg
 
 
 def main(args=None):

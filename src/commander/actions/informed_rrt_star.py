@@ -20,7 +20,7 @@ import time
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.spatial.transform import Rotation as Rot
-from shapely.geometry import LineString
+from shapely.geometry import LineString, Point, Polygon
 
 
 class Node:
@@ -380,7 +380,6 @@ if __name__ == "__main__":
     import pstats
     from pstats import SortKey
 
-    from shapely.geometry import Point, Polygon
 
     circles = [ create_circle(x, y, r) for x, y, r in [ (5, 5, 0.5), (9, 6, 1), (7, 5, 1), (1, 5, 1), (3, 6, 1), (7, 9, 1), ] ]  # fmt: off
     squares = [ create_square(x, y, r * 3) for x, y, r in [ (5, 5, 0.5), (9, 6, 1), (7, 5, 1), (1, 5, 1), (3, 6, 1), (7, 9, 1), ] ]  # fmt: off
