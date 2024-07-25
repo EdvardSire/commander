@@ -1,6 +1,6 @@
 import rclpy
 from builtin_interfaces.msg import Duration
-from geometry_msgs.msg import Point, Pose, PoseArray, PoseStamped, Quaternion
+from geometry_msgs.msg import Point, Pose, PoseArray, PoseStamped, Quaternion, Twist
 from nav2_msgs.action import ComputePathToPose
 from nav2_msgs.action._compute_path_to_pose import (
     ComputePathToPose_Goal,
@@ -11,7 +11,7 @@ from rclpy.action.server import ActionServer
 from rclpy.node import Node
 from std_msgs.msg import Header
 
-from actions.config import OTHER_POSITIONS_TOPIC
+from actions.config import OTHER_POSITIONS_TOPIC, OWN_POSITION_TOPIC
 
 from actions.informed_rrt_star import InformedRRTStar, create_square
 
@@ -21,15 +21,19 @@ class ComputePathToPoseServer(Node):
         super().__init__("compute_path_to_pose_server")
         self.expand_dis = 3
         self.goal_sample_rate = 10
-        self.max_iter = 400
+        self.max_iter = 1000
         self.border_offset = 20
         self.other_positions = PoseArray()
+        self.own_position = Twist()
 
         self.action_server = ActionServer(
             self, ComputePathToPose, "compute_path_to_pose", self.execute_callback
         )
         self.other_position_sub = self.create_subscription(
             PoseArray, OTHER_POSITIONS_TOPIC, self.other_position_callback, 10
+        )
+        self.position_subscriber = self.create_subscription(
+            Twist, OWN_POSITION_TOPIC, self.position_callback, 10
         )
 
     def execute_callback(self, goal_handle):
@@ -54,9 +58,13 @@ class ComputePathToPoseServer(Node):
         for pose in self.other_positions.poses:
             assert (pose.position.x != 0) or (pose.position.y != 0)
 
+        start = (self.own_position.linear.x, self.own_position.linear.y)
+        goal = goal_pose
+        self.get_logger().info(f"Computing path from: {start} to {goal}")
+
         self.informed_rrt_star = InformedRRTStar(
-            start=[request.start.pose.position.x, request.start.pose.position.y],
-            goal=[request.goal.pose.position.x, request.goal.pose.position.y],
+            start=start,
+            goal=goal,
             obstacle_list=[
                 create_square(
                     pose.position.x,
@@ -100,6 +108,9 @@ class ComputePathToPoseServer(Node):
 
     def other_position_callback(self, msg):
         self.other_positions = msg
+
+    def position_callback(self, msg):
+        self.own_position = msg
 
 
 def main(args=None):

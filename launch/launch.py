@@ -1,4 +1,5 @@
 from launch import LaunchDescription
+from launch.actions import TimerAction
 from launch_ros.actions import Node
 
 
@@ -12,8 +13,8 @@ def generate_launch_description():
             # ),
             Node(
                 package="commander",
-                executable="exec",
-                name="exec",
+                executable="marker_viz",
+                name="marker_viz",
             ),
             Node(
                 package="commander",
@@ -25,5 +26,16 @@ def generate_launch_description():
                 executable="compute_path_to_pose_server",
                 name="compute_path_to_pose_server",
             ),
+            
+            TimerAction(
+                period=3.0,
+                actions=[
+                    Node(
+                        package="commander",
+                        executable="exec",
+                        name="exec",
+                    )
+                ]
+            )
         ]
     )

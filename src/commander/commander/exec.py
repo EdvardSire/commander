@@ -41,19 +41,20 @@ def get_figure_8():
 
 
 def get_collision_path():
-    return [(100.0, 0.0, 0.0, 1.0)]
+    # return [(300.0, 750.0, 0.0, 1.0), (300.0, 730.0, 0.0, 1.0), (100.0, 730.0, 0.0, 1.0)]
+    return [(100.0, 730.0, 0.0, 1.0), (300.0, 730.0, 0.0, 1.0)]
 
 
 def main():
     rclpy.init()
     navigator = BasicNavigator()
 
-    initial_pose = PoseStamped()
-    initial_pose.header.frame_id = "map"
-    initial_pose.header.stamp = navigator.get_clock().now().to_msg()
-    initial_pose.pose.position.x, initial_pose.pose.position.y = 0.0, 0.0
-    initial_pose.pose.orientation.z, initial_pose.pose.orientation.w = 0.0, 1.0
-    navigator.setInitialPose(initial_pose)
+    # initial_pose = PoseStamped()
+    # initial_pose.header.frame_id = "map"
+    # initial_pose.header.stamp = navigator.get_clock().now().to_msg()
+    # initial_pose.pose.position.x, initial_pose.pose.position.y = 0.0, 0.0
+    # initial_pose.pose.orientation.z, initial_pose.pose.orientation.w = 0.0, 1.0
+    # navigator.setInitialPose(initial_pose)
 
     # Activate navigation, if not autostarted. This should be called after setInitialPose()
     # or this will initialize at the origin of the map and update the costmap with bogus readings.
@@ -70,7 +71,7 @@ def main():
     # global_costmap = navigator.getGlobalCostmap()
     # local_costmap = navigator.getLocalCostmap()
 
-    goal_poses = [
+    high_level_wayopints = [
         PoseStamped(
             header=Header(stamp=navigator.get_clock().now().to_msg(), frame_id="map"),
             pose=Pose(
@@ -81,21 +82,27 @@ def main():
         for x, y, z, w in get_collision_path()
     ]
 
-    path: Path | None = navigator.getPath(initial_pose, goal_poses[-1])
 
-    navigator.followWaypoints(path.poses)
+    for waypoint in high_level_wayopints:
 
-    i = 0
-    while not navigator.isTaskComplete():
-        i = i + 1
-        feedback = navigator.getFeedback()
-        # if feedback and i % 5 == 0:
-        #     navigator.info(
-        #         f"Executing current waypoint: {feedback.current_waypoint}/{len(goal_poses)}"
-        #     )
+        path: Path | None = navigator.getPath(PoseStamped(), waypoint)
+        if path is None:
+            navigator.lifecycleShutdown()
+            exit()
+        else:
+            navigator.followWaypoints(path.poses)
 
-        # if navigator.get_clock().now() - nav_start > Duration(seconds=600.0):
-        #     navigator.cancelTask()
+        i = 0
+        while not navigator.isTaskComplete():
+            i = i + 1
+            feedback = navigator.getFeedback()
+            # if feedback and i % 5 == 0:
+            #     navigator.info(
+            #         f"Executing current waypoint: {feedback.current_waypoint}/{len(goal_poses)}"
+            #     )
+
+            # if navigator.get_clock().now() - nav_start > Duration(seconds=600.0):
+            #     navigator.cancelTask()
 
     navigator.get_logger().info("Waypoint mission FINISHED!")
     navigator.lifecycleShutdown()
