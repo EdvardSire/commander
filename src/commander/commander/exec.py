@@ -9,13 +9,7 @@ from nav_msgs.msg import Path
 import numpy as np
 
 
-def get_simple_values():
-    return [(1.0, 1.0, 0.0, 1.0), (2.0, 2.0, 0.0, 1.0), (3.0, 2.0, 0.0, 1.0)]
-
-
-def get_square_values():
-    return [(-20.0, -70.0, 0.0, 1.0), (-10.0, 70.0, 0.0, 1.0), (-70.0, 70.0, 0.0, 1.0), (-70.0, -70.0, 0.0, 1.0) ]  # fmt: skip
-
+    
 
 def get_figure_8():
     num_points = 30
@@ -41,7 +35,6 @@ def get_figure_8():
 
 
 def get_collision_path():
-    # return [(300.0, 750.0, 0.0, 1.0), (300.0, 730.0, 0.0, 1.0), (100.0, 730.0, 0.0, 1.0)]
     return [(100.0, 730.0, 0.0, 1.0), (300.0, 730.0, 0.0, 1.0)]
 
 
@@ -86,11 +79,12 @@ def main():
     for waypoint in high_level_wayopints:
 
         path: Path | None = navigator.getPath(PoseStamped(), waypoint)
-        if path is None:
+        smoothed_path: Path | None = navigator.smoothPath(path)
+        if smoothed_path is None:
             navigator.lifecycleShutdown()
             exit()
         else:
-            navigator.followWaypoints(path.poses)
+            navigator.followWaypoints(smoothed_path.poses)
 
         i = 0
         while not navigator.isTaskComplete():

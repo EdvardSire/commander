@@ -26,9 +26,13 @@ def generate_launch_description():
                 executable="compute_path_to_pose_server",
                 name="compute_path_to_pose_server",
             ),
-            
+            Node(
+                package="commander",
+                executable="smooth_path_server",
+                name="smooth_path_server",
+            ),
             TimerAction(
-                period=3.0,
+                period=2.0,
                 actions=[
                     Node(
                         package="commander",

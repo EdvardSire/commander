@@ -41,6 +41,7 @@ class InformedRRTStar:
         expand_dis=0.5,
         goal_sample_rate=1,
         max_iter=500,
+        dump_rrt_plot=False
     ):
         self.start = Node(start[0], start[1])
         self.goal = Node(goal[0], goal[1])
@@ -51,6 +52,7 @@ class InformedRRTStar:
         self.expand_dis = expand_dis
         self.goal_sample_rate = goal_sample_rate
         self.max_iter = max_iter
+        self.dump_rrt_plot = dump_rrt_plot
         self.obstacle_list = obstacle_list
         self.node_list = None
 
@@ -137,6 +139,15 @@ class InformedRRTStar:
                     e_theta=e_theta,
                     rnd=rnd,
                 )
+
+        if self.dump_rrt_plot:
+            self.draw_graph(
+                x_center=x_center,
+                c_best=c_best,
+                c_min=c_min,
+                e_theta=e_theta,
+                dump_rrt_plot=self.dump_rrt_plot
+            )
 
         return path, time.time() - self.start_time
 
@@ -306,7 +317,7 @@ class InformedRRTStar:
         return path
 
     def draw_graph(
-        self, x_center=None, c_best=None, c_min=None, e_theta=None, rnd=None
+        self, x_center=None, c_best=None, c_min=None, e_theta=None, rnd=None, dump_rrt_plot=False
     ):
         plt.clf()
         # for stopping simulation with the esc key.
@@ -336,6 +347,8 @@ class InformedRRTStar:
         plt.axis([self.x_min_rand, self.x_max_rand, self.y_min_rand, self.y_max_rand])
         plt.grid(True)
         plt.pause(0.01)
+        if dump_rrt_plot:
+            plt.savefig("/rrt.png")
 
     @staticmethod
     def plot_ellipse(x_center, c_best, c_min, e_theta):  # pragma: no cover

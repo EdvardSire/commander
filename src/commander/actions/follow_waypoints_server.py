@@ -45,7 +45,7 @@ class FollowWaypointsServer(Node):
         self.path_pub = self.create_publisher(Path, OWN_PATH_TOPIC, 10)
 
     def execute_callback(self, goal_handle):
-        self.get_logger().info("STARTING Waypoint mission")
+        # self.get_logger().info("STARTING Waypoint mission")
         incoming_poses_stamped: List[PoseStamped] = goal_handle.request.poses
         waypoints = [
             (

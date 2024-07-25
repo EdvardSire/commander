@@ -19,7 +19,7 @@ from actions.informed_rrt_star import InformedRRTStar, create_square
 class ComputePathToPoseServer(Node):
     def __init__(self):
         super().__init__("compute_path_to_pose_server")
-        self.expand_dis = 3
+        self.expand_dis = 5
         self.goal_sample_rate = 10
         self.max_iter = 1000
         self.border_offset = 20
@@ -38,7 +38,11 @@ class ComputePathToPoseServer(Node):
 
     def execute_callback(self, goal_handle):
         request: ComputePathToPose_Goal = goal_handle.request
-        start_pose = (request.start.pose.position.x, request.start.pose.position.y)
+        """
+            start_pose = (request.start.pose.position.x, request.start.pose.position.y)
+            we use the boats position as start pose
+        """
+        start_pose = (self.own_position.linear.x, self.own_position.linear.y)
         goal_pose = (request.goal.pose.position.x, request.goal.pose.position.y)
         """"
                                                           (max_x, max_y)
@@ -58,18 +62,16 @@ class ComputePathToPoseServer(Node):
         for pose in self.other_positions.poses:
             assert (pose.position.x != 0) or (pose.position.y != 0)
 
-        start = (self.own_position.linear.x, self.own_position.linear.y)
-        goal = goal_pose
-        self.get_logger().info(f"Computing path from: {start} to {goal}")
+        self.get_logger().info(f"Computing path from: {start_pose} to {goal_pose}")
 
         self.informed_rrt_star = InformedRRTStar(
-            start=start,
-            goal=goal,
+            start=start_pose,
+            goal=goal_pose,
             obstacle_list=[
                 create_square(
                     pose.position.x,
                     pose.position.y,
-                    10,
+                    20, # size of obstacle bb
                 )
                 for pose in self.other_positions.poses
             ],
@@ -77,6 +79,7 @@ class ComputePathToPoseServer(Node):
             expand_dis=self.expand_dis,
             goal_sample_rate=self.goal_sample_rate,
             max_iter=self.max_iter,
+            dump_rrt_plot=True
         )
         rrt_path, time_elapsed = self.informed_rrt_star.informed_rrt_star_search(
             animation=False
@@ -87,7 +90,8 @@ class ComputePathToPoseServer(Node):
             return
         else:
             path = Path()
-            self.get_logger().info(f"{rrt_path}")
+            self.get_logger().info(f"Computing path took: {time_elapsed}")
+            # self.get_logger().info(f"{rrt_path}")
             goal_handle.succeed()
 
             rrt_path.reverse()
