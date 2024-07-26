@@ -1,6 +1,6 @@
 import rclpy
 from rclpy.node import Node
-from geometry_msgs.msg import Twist, Point, Pose, PoseArray
+from geometry_msgs.msg import Twist, Point, Pose, PoseArray, Vector3
 import math
 
 from std_msgs.msg import Header
@@ -15,7 +15,7 @@ from actions.config import (
 class MockBoat(Node):
     def __init__(self):
         super().__init__("mock_boat")
-        self.position = Twist()
+        self.position = Twist(linear=Vector3(x=300.0, y=730.0))
         self.velocity = Twist()
         self.current_waypoint = None
         self.boat_length = 3
@@ -70,7 +70,7 @@ class MockBoat(Node):
             PoseArray(
                 header=Header(stamp=self.get_clock().now().to_msg(), frame_id="map"),
                 poses=[
-                    Pose(position=Point(x=50.0)),
+                    Pose(position=Point(x=250.0, y=730.0)),
                     # Pose(position=Point(x=50.0, y=5.0))
                 ],
             )
