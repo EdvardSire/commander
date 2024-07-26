@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import rclpy
 from builtin_interfaces.msg import Duration
 from geometry_msgs.msg import Point, Pose, PoseArray, PoseStamped, Quaternion, Twist
@@ -71,7 +73,7 @@ class ComputePathToPoseServer(Node):
                 create_square(
                     pose.position.x,
                     pose.position.y,
-                    20, # size of obstacle bb
+                    20,  # size of obstacle bb
                 )
                 for pose in self.other_positions.poses
             ],
@@ -79,7 +81,7 @@ class ComputePathToPoseServer(Node):
             expand_dis=self.expand_dis,
             goal_sample_rate=self.goal_sample_rate,
             max_iter=self.max_iter,
-            dump_rrt_plot=True
+            dump_rrt_plot=True,
         )
         rrt_path, time_elapsed = self.informed_rrt_star.informed_rrt_star_search(
             animation=False
@@ -89,12 +91,12 @@ class ComputePathToPoseServer(Node):
             goal_handle.abort()
             return
         else:
+            rrt_path.reverse()
             path = Path()
+            self.get_logger().info(f"{rrt_path}")
             self.get_logger().info(f"Computing path took: {time_elapsed}")
-            # self.get_logger().info(f"{rrt_path}")
             goal_handle.succeed()
 
-            rrt_path.reverse()
             for x, y in rrt_path:
                 path.poses.append(  # pyright: ignore
                     PoseStamped(
