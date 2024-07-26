@@ -41,7 +41,7 @@ class InformedRRTStar:
         expand_dis=0.5,
         goal_sample_rate=1,
         max_iter=500,
-        dump_rrt_plot=False
+        dump_rrt_plot=False,
     ):
         self.start = Node(start[0], start[1])
         self.goal = Node(goal[0], goal[1])
@@ -146,7 +146,7 @@ class InformedRRTStar:
                 c_best=c_best,
                 c_min=c_min,
                 e_theta=e_theta,
-                dump_rrt_plot=self.dump_rrt_plot
+                dump_rrt_plot=self.dump_rrt_plot,
             )
 
         return path, time.time() - self.start_time
@@ -317,7 +317,13 @@ class InformedRRTStar:
         return path
 
     def draw_graph(
-        self, x_center=None, c_best=None, c_min=None, e_theta=None, rnd=None, dump_rrt_plot=False
+        self,
+        x_center=None,
+        c_best=None,
+        c_min=None,
+        e_theta=None,
+        rnd=None,
+        dump_rrt_plot=False,
     ):
         plt.clf()
         # for stopping simulation with the esc key.
