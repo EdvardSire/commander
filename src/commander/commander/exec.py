@@ -1,4 +1,5 @@
-#! /usr/bin/env python3
+#!/usr/bin/env python3
+
 from geometry_msgs.msg import PoseStamped
 from nav2_simple_commander.robot_navigator import BasicNavigator
 import rclpy
@@ -8,8 +9,6 @@ from nav_msgs.msg import Path
 
 import numpy as np
 
-
-    
 
 def get_figure_8():
     num_points = 30
@@ -72,12 +71,10 @@ def main():
                 orientation=Quaternion(x=0.0, y=0.0, z=z, w=w),
             ),
         )
-        for x, y, z, w in get_collision_path()
+        for x, y, z, w in get_collision_path() * 10
     ]
 
-
     for waypoint in high_level_wayopints:
-
         path: Path | None = navigator.getPath(PoseStamped(), waypoint)
         smoothed_path: Path | None = navigator.smoothPath(path)
         if smoothed_path is None:

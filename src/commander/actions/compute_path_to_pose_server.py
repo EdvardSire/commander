@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import rclpy
 from builtin_interfaces.msg import Duration
 from geometry_msgs.msg import Point, Pose, PoseArray, PoseStamped, Quaternion, Twist
